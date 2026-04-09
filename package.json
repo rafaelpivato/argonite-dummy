@@ -4,12 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "vite build --config vite.background-popup.config.ts && vite build --config vite.content.config.ts"
+    "build:bg": "vite build --config vite.background-popup.config.ts",
+    "build:ct": "vite build --config vite.content.config.ts",
+    "build": "pnpm run build:bg && pnpm run build:ct",
+    "watch:bg": "vite build --watch --config vite.background-popup.config.ts",
+    "watch:ct": "vite build --watch --config vite.content.config.ts",
+    "watch": "concurrently -k -n bg,ct -c blue,green \"pnpm:watch:bg\" \"pnpm:watch:ct\""
   },
   "dependencies": {
     "argonite-core": "file:../argonite-core"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "prettier": "^3.8.1",
     "typescript": "^5.4.0",
     "vite": "^7.3.1"
