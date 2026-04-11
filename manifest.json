@@ -3,6 +3,8 @@
   "name": "Argonite Dummy",
   "version": "0.0.0",
 
+  "permissions": ["storage"],
+
   "background": {
     "service_worker": "dist/background.js",
     "type": "module"
