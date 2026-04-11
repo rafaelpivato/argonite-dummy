@@ -1,37 +1,15 @@
-import type { ServiceDependencies } from 'argonite-core';
 import { Service } from 'argonite-core';
 
 export class CounterService extends Service {
+  static requiredCapabilities = ['storage'] as const;
+
   private count = 0;
   private lastDisposedAt: number | null = null;
   private disposeCount = 0;
-
-  constructor(private readonly deps: ServiceDependencies) {
-    super();
-  }
+  private restoreReady: Promise<void> = Promise.resolve();
 
   onStart() {
-    const storage = this.deps.capabilities.storage;
-    if (!storage) {
-      return;
-    }
-
-    void Promise.all([
-      storage.get<number>('counter:count'),
-      storage.get<number>('counter:lastDisposedAt'),
-    ])
-      .then(([storedCount, storedDisposedAt]) => {
-        if (typeof storedCount === 'number') {
-          this.count = storedCount;
-        }
-
-        if (typeof storedDisposedAt === 'number') {
-          this.lastDisposedAt = storedDisposedAt;
-        }
-      })
-      .catch((err: unknown) => {
-        console.warn('[Argonite Dummy] Failed to restore state from storage', err);
-      });
+    this.restoreReady = this.restore();
   }
 
   onDispose() {
@@ -41,24 +19,25 @@ export class CounterService extends Service {
 
     console.log('[Argonite Dummy] CounterService disposed', disposedAt);
 
-    void this.deps.capabilities.storage
-      ?.set('counter:lastDisposedAt', disposedAt)
-      .catch((err: unknown) => {
-        console.warn('[Argonite Dummy] Failed to persist dispose marker', err);
-      });
+    void this.storage.set('counter:lastDisposedAt', disposedAt).catch((err: unknown) => {
+      console.warn('[Argonite Dummy] Failed to persist dispose marker', err);
+    });
   }
 
-  increment() {
+  async increment() {
+    await this.restoreReady;
     this.count++;
     void this.persist();
     return this.count;
   }
 
-  getCount() {
+  async getCount() {
+    await this.restoreReady;
     return this.count;
   }
 
-  getLifecycleState() {
+  async getLifecycleState() {
+    await this.restoreReady;
     return {
       count: this.count,
       disposeCount: this.disposeCount,
@@ -66,9 +45,20 @@ export class CounterService extends Service {
     };
   }
 
+  private async restore() {
+    try {
+      const storedCount = await this.storage.get<number>('counter:count');
+      if (typeof storedCount === 'number') {
+        this.count = storedCount;
+      }
+    } catch (err) {
+      console.warn('[Argonite Dummy] Failed to restore counter from storage', err);
+    }
+  }
+
   private async persist() {
     try {
-      await this.deps.capabilities.storage?.set('counter:count', this.count);
+      await this.storage.set('counter:count', this.count);
     } catch (err) {
       console.warn('[Argonite Dummy] Failed to persist counter to storage', err);
     }

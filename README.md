@@ -17,16 +17,17 @@ The dummy currently demonstrates these `argonite-core` concepts in real code:
 
 - `BackgroundRuntime` as authority
 - `CounterService` as a developer-authored service
-- explicit capability injection via `inject: ['storage']`
-- request/response message handlers
+- service-declared required capabilities (`CounterService.requiredCapabilities`)
+- explicit message wiring for straightforward routes
+- explicit message handlers for orchestration-heavy routes
 - broadcast events (`counter:updated`) from authority to clients
 - `PageRuntime` and `ContentRuntime` client subscriptions
-- deterministic disposal wiring via `runtime.dispose()`
+- runtime-managed suspend disposal with explicit `runtime.dispose()` support
 
 ## Project Layout
 
-- `src/background.ts`: authority runtime wiring, handlers, broadcast, suspend/dispose wiring
-- `src/counter.service.ts`: counter state, storage restore/persist, lifecycle state
+- `src/background.ts`: authority runtime wiring, handlers, broadcast, and lifecycle hooks
+- `src/counter.service.ts`: counter state, storage persist, lifecycle state
 - `src/popup.ts` + `src/popup.entry.ts`: popup entry and UI client behavior
 - `src/content.ts` + `src/content.entry.ts`: content entry and broadcast log behavior
 - `manifest.json`: MV3 manifest and permissions

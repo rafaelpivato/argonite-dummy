@@ -3,34 +3,25 @@ import { CounterService } from './counter.service';
 
 const runtime = new BackgroundRuntime();
 
-runtime.registerService(CounterService, {
-  inject: ['storage'],
-});
+runtime.registerService(CounterService);
 
-runtime.registerMessageHandler('counter:get', (_msg, ctx) => {
-  const counter = ctx.getService(CounterService);
-  return counter.getCount();
-});
+runtime.registerServiceMessage('counter:get', CounterService, 'getCount');
+runtime.registerServiceMessage('counter:lifecycle:get', CounterService, 'getLifecycleState');
 
-runtime.registerMessageHandler('counter:lifecycle:get', (_msg, ctx) => {
+runtime.registerMessageHandler('counter:increment', async (_msg, ctx) => {
   const counter = ctx.getService(CounterService);
-  return counter.getLifecycleState();
-});
-
-runtime.registerMessageHandler('counter:increment', (_msg, ctx) => {
-  const counter = ctx.getService(CounterService);
-  const value = counter.increment();
+  const value = await counter.increment();
   void runtime.broadcast('counter:updated', { value });
   return value;
 });
 
-runtime.registerMessageHandler('runtime:dispose', (_msg, ctx) => {
+runtime.registerMessageHandler('runtime:dispose', async (_msg, ctx) => {
   const counter = ctx.getService(CounterService);
-  const before = counter.getLifecycleState();
+  const before = await counter.getLifecycleState();
 
   runtime.dispose();
 
-  const after = counter.getLifecycleState();
+  const after = await counter.getLifecycleState();
 
   return {
     disposed: true,
@@ -40,7 +31,3 @@ runtime.registerMessageHandler('runtime:dispose', (_msg, ctx) => {
 });
 
 runtime.start();
-
-chrome.runtime.onSuspend.addListener(() => {
-  runtime.dispose();
-});
