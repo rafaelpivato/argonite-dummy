@@ -4,6 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "outDir": "dist",
+    "rootDir": "src",
+    "types": ["chrome"],
     "strict": true,
     "skipLibCheck": true
   },

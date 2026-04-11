@@ -29,7 +29,7 @@ export class CounterService extends Service {
           this.lastDisposedAt = storedDisposedAt;
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.warn('[Argonite Dummy] Failed to restore state from storage', err);
       });
   }
@@ -41,9 +41,11 @@ export class CounterService extends Service {
 
     console.log('[Argonite Dummy] CounterService disposed', disposedAt);
 
-    void this.deps.capabilities.storage?.set('counter:lastDisposedAt', disposedAt).catch((err) => {
-      console.warn('[Argonite Dummy] Failed to persist dispose marker', err);
-    });
+    void this.deps.capabilities.storage
+      ?.set('counter:lastDisposedAt', disposedAt)
+      .catch((err: unknown) => {
+        console.warn('[Argonite Dummy] Failed to persist dispose marker', err);
+      });
   }
 
   increment() {
