@@ -6,7 +6,7 @@ runtime behavior from `argonite-core`.
 It is intentionally small and focused on practical runtime flows:
 
 - background authority with service registration
-- capability injection (`storage`)
+- strict capability declaration + injection (`storage`)
 - page and content clients
 - authority-to-client broadcast
 - service lifecycle hooks (`onStart` / `onDispose`)
@@ -17,7 +17,7 @@ The dummy currently demonstrates these `argonite-core` concepts in real code:
 
 - `BackgroundRuntime` as authority
 - `CounterService` as a developer-authored service
-- service-declared required capabilities (`CounterService.requiredCapabilities`)
+- service-declared required capabilities (`CounterService.requiredCapabilities`) with compile-time-gated capability access
 - explicit message wiring for straightforward routes
 - explicit message handlers for orchestration-heavy routes
 - broadcast events (`counter:updated`) from authority to clients

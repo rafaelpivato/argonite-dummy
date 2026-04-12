@@ -1,7 +1,9 @@
 import { Service } from 'argonite-core';
 
-export class CounterService extends Service {
-  static requiredCapabilities = ['storage'] as const;
+const counterCapabilities = ['storage'] as const;
+
+export class CounterService extends Service<typeof counterCapabilities> {
+  static readonly requiredCapabilities = counterCapabilities;
 
   private count = 0;
   private lastDisposedAt: number | null = null;
